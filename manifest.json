@@ -1,0 +1,17 @@
+{
+	"name": "WeaponSettings",
+	"namespace": "MincedMeatMole",
+	"version_number": "0.0.1",
+	"description": "Adjust the difficulty of Weapons yourself",
+	"dependencies": [],
+    "website_url": "",
+	"extra": {
+		"godot": {
+			"incompatibilities": [],
+			"authors": ["MincedMeatMole"],
+			"compatible_mod_loader_version": ["3.0.0"],
+			"compatible_game_version": ["0.8.0.3"],
+			"config_defaults": {}
+		}
+	}
+}
