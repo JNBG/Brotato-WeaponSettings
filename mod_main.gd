@@ -19,8 +19,8 @@ func _init(modLoader = ModLoader):
 	ModLoaderMod.install_script_extension(dir + "extensions/ui/menus/menus.gd")
 	
 	# Add localizations
-#	ModLoaderMod.add_translation(dir + "translations/weapon_setting_translations.en.translation")
-#	ModLoaderMod.add_translation(dir + "translations/weapon_setting_translations.de.translation")
+	ModLoaderMod.add_translation(dir + "translations/weapon_setting_translations.en.translation")
+	ModLoaderMod.add_translation(dir + "translations/weapon_setting_translations.de.translation")
 
 
 func _ready()->void:
