@@ -11,7 +11,9 @@ onready var back_button = $"%BackButton"
 onready var weapons_form = $"%WeaponFormHolderInner"
 onready var weapons_form_holder = $"%WeaponFormWrapper"
 onready var all_buttons = $"%AllButtons"
-onready var reset_button = $"%ResetButton"
+onready var settings_controls = $"%SettingsControls"
+onready var reset_tier_button = $"%ResetTier"
+onready var reset_weapon_button = $"%ResetWeapon"
 onready var labels = $"%Labels"
 onready var inputs = $"%Inputs"
 onready var defaults = $"%Defaults"
@@ -23,17 +25,196 @@ onready var weapon_name_container = $"%Name"
 onready var tier_slot_holder = $"%TierSlotHolder"
 onready var tier_button = $"%TierButton"
 onready var mini_spacer = $"%MiniSpacer"
+onready var tier_info = $"%TierInfo"
 
-var allPanels = [];
-var allTierPanles = [];
+var allPanels = []
+var allTierPanles = []
+var allInputs = {}
 var basetheme = load("res://resources/themes/base_theme.tres")
 var weapons_theme = load("res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapons_settings_menu_theme.tres")
 var weapon_buttons = {}
 var tier_buttons = {}
 var value_labels = {}
+var current_weapon
+var current_tier
+var current_type
+
+var common_int_data = [
+	"value"
+]
+var common_int_stats = [
+	"cooldown",
+	"damage",
+	"crit_chance",
+	"crit_damage",
+	"min_range",
+	"max_range",
+	"knockback",
+	"lifesteal",
+	"recoil",
+	"recoil_duration",
+	"additional_cooldown_every_x_shots",
+	"additional_cooldown_multiplier",
+]
+var ranged_int_stats = [
+	"accuracy",
+	"nb_projectiles",
+	"projectile_spread",
+	"piercing",
+	"piercing_dmg_reduction",
+	"bounce",
+	"bounce_dmg_reduction",
+	"projectile_speed"
+]
+var melee_bool_stats = [
+	"attack_type",
+	"alternate_attack_type"
+]
+var ranged_bool_stats = [
+	"increase_projectile_speed_with_range"
+]
+var infos = {
+	"value": {
+		"min": 0,
+		"max": 100000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_PRICE"
+	},
+	"cooldown": {
+		"min": 0,
+		"max": 100000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_COOLDOWN"
+	},
+	"damage": {
+		"min": 0,
+		"max": 100000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_DAMAGE"
+	},
+	"crit_chance": {
+		"min": 0,
+		"max": 100,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_CRIT_CHANGE"
+	},
+	"crit_damage": {
+		"min": 0,
+		"max": 100,
+		"step": 0.01,
+		"label": "WEAPON_SETTINGS_CRIT_DAMAGE"
+	},
+	"min_range": {
+		"min": 0,
+		"max": 10000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_MIN_RANGE"
+	},
+	"max_range": {
+		"min": 0,
+		"max": 10000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_MAX_RANGE"
+	},
+	"knockback": {
+		"min": 0,
+		"max": 10000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_KNOCKBACK"
+	},
+	"lifesteal": {
+		"min": 0,
+		"max": 100,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_LIFESTEAL"
+	},
+	"recoil": {
+		"min": 0,
+		"max": 10000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_RECOIL"
+	},
+	"recoil_duration": {
+		"min": 0,
+		"max": 100,
+		"step": 0.001,
+		"label": "WEAPON_SETTINGS_RECOIL_DURATION"
+	},
+	"additional_cooldown_every_x_shots": {
+		"min": -1,
+		"max": 1000000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_ADDED_COOLDOWN"
+	},
+	"additional_cooldown_multiplier": {
+		"min": -1,
+		"max": 1000000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_ADDED_COOLDOWN_MULTIPLIER"
+	},
+	"accuracy": {
+		"min": 0,
+		"max": 100,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_ACCURACY"
+	},
+	"nb_projectiles": {
+		"min": 0,
+		"max": 100,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_NB_PROJECTILES"
+	},
+	"projectile_spread": {
+		"min": 0,
+		"max": 10,
+		"step": 0.1,
+		"label": "WEAPON_SETTINGS_PROJECTILE_SPREAD"
+	},
+	"piercing": {
+		"min": 0,
+		"max": 100,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_PIERCING"
+	},
+	"piercing_dmg_reduction": {
+		"min": 0,
+		"max": 1000,
+		"step": 0.1,
+		"label": "WEAPON_SETTINGS_PIERCING_DMG_REDUCTION"
+	},
+	"bounce": {
+		"min": 0,
+		"max": 100,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_BOUNCE"
+	},
+	"bounce_dmg_reduction": {
+		"min": 0,
+		"max": 1000,
+		"step": 0.1,
+		"label": "WEAPON_SETTINGS_BOUNCE_DMG_REDUCTION"
+	},
+	"projectile_speed": {
+		"min": 0,
+		"max": 1000000,
+		"step": 1,
+		"label": "WEAPON_SETTINGS_PROJECTILE_SPEED"
+	},
+	"increase_projectile_speed_with_range": {
+		"default": false,
+		"label": "WEAPON_SETTINGS_INCREASE_PROJECTILE_SPEED_WITH_RANGE"
+	},
+	"attack_type": {
+		"default": 0,
+		"label": "WEAPON_SETTINGS_ATTACK_TYPE"
+	},
+	"alternate_attack_type": {
+		"default": false,
+		"label": "WEAPON_SETTINGS_ALTERNATE_ATTACK_TYPE"
+	}
+}
 
 func _ready():
-
 	pass
 
 func init():
@@ -45,16 +226,73 @@ func init():
 
 	var melee_weapons = get_weapon_list("melee")
 	var ranged_weapons = get_weapon_list("ranged")
-	
+
 	delete_children(melee_weapons_buttons)
 	delete_children(ranged_weapons_buttons)
 	allPanels = []
-	
+
 	for melee_weapon in melee_weapons:
 		melee_weapons_buttons.add_child(create_new_weapons_button(melee_weapons[melee_weapon], "melee"))
 
 	for ranged_weapon in ranged_weapons:
 		ranged_weapons_buttons.add_child(create_new_weapons_button(ranged_weapons[ranged_weapon], "ranged"))
+
+	reset_tier_button.connect("pressed", self, "_on_reset_tier_button_pressed")
+	reset_weapon_button.connect("pressed", self, "_on_reset_weapon_button_pressed")
+
+func _on_reset_tier_button_pressed():
+	if int(current_tier) != 0:
+		reset_tier(current_tier)
+		reset_inputs()
+	else:
+		_on_reset_weapon_button_pressed()
+
+
+func reset_tier(tier):
+	for default_value_key in weapon_settings_defaults[current_weapon.internal_name].tiers[tier]:
+		var default_value = weapon_settings_defaults[current_weapon.internal_name].tiers[tier][default_value_key]
+		if default_value_key == "scaling_stats":
+			continue
+		if default_value_key == "alternate_attack_type":
+			_save_single_value(default_value, current_weapon, tier, default_value_key)
+			continue
+		if default_value_key == "attack_type":
+			_save_single_value(default_value, current_weapon, tier, default_value_key)
+			continue
+		if default_value_key == "increase_projectile_speed_with_range":
+			_save_single_value(default_value, current_weapon, tier, default_value_key)
+			continue
+		if default_value_key == "crit_chance" or default_value_key == "lifesteal" or default_value_key == "accuracy":
+			default_value = default_value * 100
+
+		_save_single_value(default_value, current_weapon, tier, default_value_key)
+
+func reset_inputs():
+	for default_value_key in weapon_settings_defaults[current_weapon.internal_name].tiers[current_tier]:
+		var default_value = weapon_settings_defaults[current_weapon.internal_name].tiers[current_tier][default_value_key]
+		if default_value_key == "scaling_stats":
+			continue
+		if default_value_key == "alternate_attack_type":
+			allInputs[default_value_key].pressed = default_value
+			continue
+		if default_value_key == "attack_type":
+			allInputs[default_value_key].pressed = default_value
+			continue
+		if default_value_key == "increase_projectile_speed_with_range":
+			allInputs[default_value_key].pressed = default_value
+			continue
+		if default_value_key == "crit_chance" or default_value_key == "lifesteal" or default_value_key == "accuracy":
+			default_value = default_value * 100
+
+		allInputs[default_value_key].value = default_value
+
+
+func _on_reset_weapon_button_pressed():
+	reset_inputs()
+	if current_weapon.tiers.size() > 1:
+		reset_tier(0)
+	for tier in current_weapon.tiers:
+		reset_tier(tier)
 
 func create_new_weapons_button(weapon, type):
 	var panel = PanelContainer.new()
@@ -86,7 +324,7 @@ func create_new_tier_button(tier,weapon,type):
 	else:
 		new_button.texture_normal = load("res://ui/menus/run/difficulty_selection/difficulty_icons/" + tier + ".png")
 	new_button.connect("pressed", self, "_on_tier_button_pressed", [panel, tier, weapon,type])
-	
+
 	var dot = TextureRect.new()
 	dot.texture = load("res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapon_settings_dot.png")
 	dot.anchor_left = 1
@@ -98,7 +336,7 @@ func create_new_tier_button(tier,weapon,type):
 	dot.visible = _is_tier_modified(weapon.internal_name, tier)
 	tier_buttons[tier] = dot
 	new_button.add_child(dot)
-	
+
 	panel.add_child(new_button)
 	allTierPanles.append(panel)
 	return panel
@@ -121,6 +359,9 @@ func create_new_bool_input(default, weapon, tier, label, stat):
 	checkboxItem.pressed = default
 	checkboxItem.rect_min_size.y = 54
 	checkboxItem.connect("toggled", self, "_save_single_value", [weapon, tier, stat]);
+	if stat == "attack_type":
+		checkboxItem.set_theme(weapons_theme)
+
 	buildInputRow(checkboxItem, label, tier, stat, weapon, 70)
 
 func create_new_label(label, size, stat, weapon, tier):
@@ -128,7 +369,7 @@ func create_new_label(label, size, stat, weapon, tier):
 	labelItem.text = tr(label) + "  "
 	labelItem.rect_min_size.y = size
 	labelItem.valign = 1
-	labelItem.align = 2	
+	labelItem.align = 2
 
 	var dot = TextureRect.new()
 	dot.texture = load("res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapon_settings_dot.png")
@@ -150,6 +391,21 @@ func create_new_default_label(tier, stat, weaponname, size):
 		var value = weapon_settings_defaults[weaponname].tiers[tier][stat]
 		if stat == "lifesteal" or stat == "crit_chance" or stat == "accuracy":
 			value = value * 100
+		if stat == "alternate_attack_type":
+			if value:
+				value = tr("WEAPON_SETTINGS_YES")
+			else:
+				value = tr("WEAPON_SETTINGS_NO")
+		if stat == "increase_projectile_speed_with_range":
+			if value:
+				value = tr("WEAPON_SETTINGS_YES")
+			else:
+				value = tr("WEAPON_SETTINGS_NO")
+		if stat == "attack_type":
+			if value == 0:
+				value = tr("WEAPON_SETTINGS_STAB")
+			elif value == 1:
+				value = tr("WEAPON_SETTINGS_SWING")
 		defaultLabelItem.text = "  " + str(value) + "  "
 	else:
 		defaultLabelItem.text = "  "
@@ -167,6 +423,8 @@ func buildInputRow(input,label,tier,stat,weapon, size):
 	inputs.add_child(input)
 	defaults.add_child(mini_spacer.duplicate())
 	defaults.add_child(defaultItem)
+
+	allInputs[stat] = input
 
 func _on_weapon_button_pressed(panel:PanelContainer, weapon, type):
 	for single_panel in allPanels:
@@ -188,130 +446,170 @@ func _on_weapon_button_pressed(panel:PanelContainer, weapon, type):
 	_on_tier_button_pressed(tier_slot_holder.get_children()[0],defaultTier,weapon,type)
 
 	weapons_form.visible = true
+	settings_controls.visible = true
+	current_weapon = weapon
+	current_type = type
 
 func _on_tier_button_pressed(panel, tier, weapon,type):
+	allInputs = {}
+
 	for single_panel in allTierPanles:
 		single_panel.set_theme(basetheme)
 	panel.set_theme(weapons_theme)
+
+	if int(tier) == 0:
+		tier_info.visible = true
+	else:
+		tier_info.visible = false
+
 
 	delete_children(labels)
 	delete_children(inputs)
 	delete_children(defaults)
 
 	if int(tier) == 0:
-		var data = load(weapon.tiers[weapon.tiers.keys()[0]].data)
-		var stats = load(weapon.tiers[weapon.tiers.keys()[0]].stats)
-	else:
-		var data = load(weapon.tiers[tier].data)
-		var stats = load(weapon.tiers[tier].stats)
-		
-		var value = data.value
-		if (_is_value_modified(weapon.internal_name, tier, "value")):
-			value = weapon_settings_save_data[weapon.internal_name].tiers[tier]["value"]
-		var cooldown = stats.cooldown
-		if (_is_value_modified(weapon.internal_name, tier, "cooldown")):
-			cooldown = weapon_settings_save_data[weapon.internal_name].tiers[tier]["cooldown"]
-		var damage = stats.damage
-		if (_is_value_modified(weapon.internal_name, tier, "damage")):
-			damage = weapon_settings_save_data[weapon.internal_name].tiers[tier]["damage"]
-		var crit_chance = stats.crit_chance
-		if (_is_value_modified(weapon.internal_name, tier, "crit_chance")):
-			crit_chance = weapon_settings_save_data[weapon.internal_name].tiers[tier]["crit_chance"]
-		var crit_damage = stats.crit_damage
-		if (_is_value_modified(weapon.internal_name, tier, "crit_damage")):
-			crit_damage = weapon_settings_save_data[weapon.internal_name].tiers[tier]["crit_damage"]
-		var min_range = stats.min_range
-		if (_is_value_modified(weapon.internal_name, tier, "min_range")):
-			min_range = weapon_settings_save_data[weapon.internal_name].tiers[tier]["min_range"]
-		var max_range = stats.max_range
-		if (_is_value_modified(weapon.internal_name, tier, "max_range")):
-			max_range = weapon_settings_save_data[weapon.internal_name].tiers[tier]["max_range"]
-		var knockback = stats.knockback
-		if (_is_value_modified(weapon.internal_name, tier, "knockback")):
-			knockback = weapon_settings_save_data[weapon.internal_name].tiers[tier]["knockback"]
-		var lifesteal = stats.lifesteal
-		if (_is_value_modified(weapon.internal_name, tier, "lifesteal")):
-			lifesteal = weapon_settings_save_data[weapon.internal_name].tiers[tier]["lifesteal"]
-		var recoil = stats.recoil
-		if (_is_value_modified(weapon.internal_name, tier, "recoil")):
-			recoil = weapon_settings_save_data[weapon.internal_name].tiers[tier]["recoil"]
-		var recoil_duration = stats.recoil_duration
-		if (_is_value_modified(weapon.internal_name, tier, "recoil_duration")):
-			recoil_duration = weapon_settings_save_data[weapon.internal_name].tiers[tier]["recoil_duration"]
-		var additional_cooldown_every_x_shots = stats.additional_cooldown_every_x_shots
-		if (_is_value_modified(weapon.internal_name, tier, "additional_cooldown_every_x_shots")):
-			additional_cooldown_every_x_shots = weapon_settings_save_data[weapon.internal_name].tiers[tier]["additional_cooldown_every_x_shots"]
-		var additional_cooldown_multiplier = stats.additional_cooldown_multiplier
-		if (_is_value_modified(weapon.internal_name, tier, "additional_cooldown_multiplier")):
-			additional_cooldown_multiplier = weapon_settings_save_data[weapon.internal_name].tiers[tier]["additional_cooldown_multiplier"]
-
-		create_new_number_input(value, 0, 100000, 1, weapon, tier, "WEAPON_SETTINGS_PRICE", "value")
-		create_new_number_input(cooldown, 0, 100000, 1, weapon, tier, "WEAPON_SETTINGS_COOLDOWN", "cooldown")
-		create_new_number_input(damage, 0, 100000, 1, weapon, tier, "WEAPON_SETTINGS_DAMAGE", "damage")
-		create_new_number_input(crit_chance, 1, 100, 1, weapon, tier, "WEAPON_SETTINGS_CRIT_CHANGE", "crit_chance")
-		create_new_number_input(crit_damage, 0.01, 100, 0.01, weapon, tier, "WEAPON_SETTINGS_CRIT_DAMAGE", "crit_damage")
-		create_new_number_input(min_range, 0, 10000, 1, weapon, tier, "WEAPON_SETTINGS_MIN_RANGE", "min_range")
-		create_new_number_input(max_range, 0, 10000, 1, weapon, tier, "WEAPON_SETTINGS_MAX_RANGE", "max_range")
-		create_new_number_input(knockback, 0, 10000, 1, weapon, tier, "WEAPON_SETTINGS_KNOCKBACK", "knockback")
-		create_new_number_input(lifesteal, 0, 100, 1, weapon, tier, "WEAPON_SETTINGS_LIFESTEAL", "lifesteal")
-		create_new_number_input(recoil, 0, 10000, 1, weapon, tier, "WEAPON_SETTINGS_RECOIL", "recoil")
-		create_new_number_input(recoil_duration, 0.001, 100, 0.001, weapon, tier, "WEAPON_SETTINGS_RECOIL_DURATION", "recoil_duration")
-		create_new_number_input(additional_cooldown_every_x_shots, -1, 1000000, 1, weapon, tier, "WEAPON_SETTINGS_ADDED_COOLDOWN", "additional_cooldown_every_x_shots")
-		create_new_number_input(additional_cooldown_multiplier, -1, 1000000, 1, weapon, tier, "WEAPON_SETTINGS_ADDED_COOLDOWN_MULTIPLIER", "additional_cooldown_multiplier")
-
+		infos.value.min = -100000
+		infos.cooldown.min = -100000
+		infos.damage.min = -100000
+		infos.crit_chance.min = -100
+		infos.crit_damage.min = -100
+		infos.min_range.min = -10000
+		infos.max_range.min = -10000
+		infos.knockback.min = -10000
+		infos.lifesteal.min = -100
+		infos.recoil.min = -10000
+		infos.recoil_duration.min = -100
+		infos.additional_cooldown_every_x_shots.min = -1000000
+		infos.additional_cooldown_multiplier.min = -1000000
 		if type == "ranged":
-			var accuracy = stats.accuracy
-			if (_is_value_modified(weapon.internal_name, tier, "accuracy")):
-				accuracy = weapon_settings_save_data[weapon.internal_name].tiers[tier]["accuracy"]
-			create_new_number_input(accuracy, 1, 100, 1, weapon, tier, "WEAPON_SETTINGS_ACCURACY", "accuracy")
+			infos.accuracy.min = -100
+			infos.nb_projectiles.min = -10000
+			infos.projectile_spread.min = -10000
+			infos.piercing.min = -10000
+			infos.piercing_dmg_reduction.min = -10000
+			infos.bounce.min = -10000
+			infos.bounce_dmg_reduction.min = -10000
+			infos.projectile_speed.min =  -10000
 
-		if type == "melee":
-			var attack_type = stats.attack_type
-			if (_is_value_modified(weapon.internal_name, tier, "attack_type")):
-				attack_type = weapon_settings_save_data[weapon.internal_name].tiers[tier]["attack_type"]
-			var alternate_attack_type = stats.alternate_attack_type
-			if (_is_value_modified(weapon.internal_name, tier, "alternate_attack_type")):
-				alternate_attack_type = weapon_settings_save_data[weapon.internal_name].tiers[tier]["alternate_attack_type"]
-			create_new_bool_input(attack_type, weapon, tier, "WEAPON_SETTINGS_ATTACK_TYPE", "attack_type")
-			create_new_bool_input(alternate_attack_type, weapon, tier, "WEAPON_SETTINGS_ALTERNATE_ATTACK_TYPE", "alternate_attack_type")
+	var stats = load(weapon.tiers[weapon.tiers.keys()[0]].stats)
+	if type == "ranged":
+		infos.increase_projectile_speed_with_range.default = stats.increase_projectile_speed_with_range
+	if type == "melee":
+		infos.attack_type.default = stats.attack_type
+		infos.alternate_attack_type.default = stats.alternate_attack_type
+
+	for entry in common_int_data:
+		var val = 0
+		if int(tier) != 0:
+			var data = load(weapon.tiers[tier].data)
+			val = data[entry]
+		if (_is_value_modified(weapon.internal_name, tier, entry)):
+			val = weapon_settings_save_data[weapon.internal_name].tiers[tier][entry]
+		create_new_number_input(val, infos[entry].min, infos[entry].max, infos[entry].step, weapon, tier, infos[entry].label, entry)
+
+	for entry in common_int_stats:
+		var val = 0
+		if int(tier) != 0:
+			var data = load(weapon.tiers[tier].stats)
+			val = data[entry]
+		if (_is_value_modified(weapon.internal_name, tier, entry)):
+			val = weapon_settings_save_data[weapon.internal_name].tiers[tier][entry]
+		create_new_number_input(val, infos[entry].min, infos[entry].max, infos[entry].step, weapon, tier, infos[entry].label, entry)
+
+	if type == "ranged":
+		for entry in ranged_int_stats:
+			var val = 0
+			if int(tier) != 0:
+				var data = load(weapon.tiers[tier].stats)
+				val = data[entry]
+			if (_is_value_modified(weapon.internal_name, tier, entry)):
+				val = weapon_settings_save_data[weapon.internal_name].tiers[tier][entry]
+			create_new_number_input(val, infos[entry].min, infos[entry].max, infos[entry].step, weapon, tier, infos[entry].label, entry)
+
+		for entry in ranged_bool_stats:
+			if (_is_value_modified(weapon.internal_name, tier, entry)):
+				infos[entry].default = weapon_settings_save_data[weapon.internal_name].tiers[tier][entry]
+			create_new_bool_input(infos[entry].default, weapon, tier, infos[entry].label, entry)
+
+	if type == "melee":
+		for entry in melee_bool_stats:
+			if (_is_value_modified(weapon.internal_name, tier, entry)):
+				infos[entry].default = weapon_settings_save_data[weapon.internal_name].tiers[tier][entry]
+			create_new_bool_input(infos[entry].default, weapon, tier, infos[entry].label, entry)
+
+	current_tier = tier
 
 func _save_single_value(value, weapon, tier, stat):
 	if stat == "lifesteal" or stat == "crit_chance" or stat == "accuracy":
 		value = value / 100
-	
+
 	if stat == "attack_type":
 		value = int(value)
 
-	var fileToSave = weapon.tiers[tier].stats
-	if stat == "value":
-		fileToSave = weapon.tiers[tier].data
+	if int(tier) == 0:
+		for tier in weapon.tiers:
+			var fileToSave = weapon.tiers[tier].stats
+			if stat == "value":
+				fileToSave = weapon.tiers[tier].data
+			var data = load(fileToSave)
+			if stat == "attack_type":
+				data[stat] = int(value)
+			elif stat == "alternate_attack_type":
+				data[stat] = value
+			elif stat == "increase_projectile_speed_with_range":
+				data[stat] = value
+			else:
+				data[stat] = weapon_settings_defaults[weapon.internal_name].tiers[tier][stat] + value
+	else:
+		var fileToSave = weapon.tiers[tier].stats
+		if stat == "value":
+			fileToSave = weapon.tiers[tier].data
 
-	var data = load(fileToSave)
-	data[stat] = value
+		var data = load(fileToSave)
+		data[stat] = value
 
 	if !weapon.internal_name in weapon_settings_save_data:
 		weapon_settings_save_data[weapon.internal_name] = {}
 		weapon_settings_save_data[weapon.internal_name]['tiers'] = {}
 
+	if int(tier) == 0:
+		for tier in weapon.tiers:
+			if !tier in weapon_settings_save_data[weapon.internal_name]['tiers']:
+				weapon_settings_save_data[weapon.internal_name]['tiers'][tier] = {}
+
+			if stat == "attack_type":
+				weapon_settings_save_data[weapon.internal_name]['tiers'][tier][stat] = int(value)
+			elif stat == "alternate_attack_type":
+				weapon_settings_save_data[weapon.internal_name]['tiers'][tier][stat] = value
+			elif stat == "increase_projectile_speed_with_range":
+				weapon_settings_save_data[weapon.internal_name]['tiers'][tier][stat] = value
+			else:
+				weapon_settings_save_data[weapon.internal_name]['tiers'][tier][stat] = weapon_settings_defaults[weapon.internal_name].tiers[tier][stat] + value
+
+			if _is_tier_modified(weapon.internal_name, tier):
+				tier_buttons[tier].visible = true
+			else:
+				tier_buttons[tier].visible = false
+
 	if !tier in weapon_settings_save_data[weapon.internal_name]['tiers']:
 		weapon_settings_save_data[weapon.internal_name]['tiers'][tier] = {}
 
 	weapon_settings_save_data[weapon.internal_name]['tiers'][tier][stat] = value
-	
+
 	if _is_weapon_modified(weapon.internal_name):
 		weapon_buttons[weapon.internal_name].visible = true
 	else:
 		weapon_buttons[weapon.internal_name].visible = false
-#		
+
 	if _is_tier_modified(weapon.internal_name, tier):
 		tier_buttons[tier].visible = true
 	else:
 		tier_buttons[tier].visible = false
-	
+
 	if _is_value_modified(weapon.internal_name, tier, stat):
 		value_labels[stat].visible = true
 	else:
-		value_labels[stat].visible = false	
+		value_labels[stat].visible = false
 
 	_weapon_settings_save_data()
 
@@ -323,7 +621,7 @@ func _is_weapon_modified(weapon):
 					if weapon_settings_save_data[weapon].tiers[tier][value_to_check] != weapon_settings_defaults[weapon].tiers[tier][value_to_check]:
 						return true
 	return false
-	
+
 func _is_tier_modified(weapon, tier):
 	if weapon in weapon_settings_save_data:
 		if tier in weapon_settings_save_data[weapon].tiers:
@@ -340,7 +638,6 @@ func _is_value_modified(weapon, tier, stat):
 				if weapon_settings_save_data[weapon].tiers[tier][stat] != weapon_settings_defaults[weapon].tiers[tier][stat]:
 					return true
 	return false
-
 
 ### Just File Handlers and Preppers ###
 func get_weapon_list(type):
@@ -420,5 +717,5 @@ func _weapon_settings_load_defaults():
 
 func _on_BackButton_pressed():
 	weapons_form.visible = false
-	reset_button.visible = false
+	settings_controls.visible = false
 	emit_signal("back_button_pressed")

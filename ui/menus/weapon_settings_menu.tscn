@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://mods-unpacked/MincedMeatMole-WeaponSettings/extensions/ui/menus/pages/menu_weapon_settings_options.gd" type="Script" id=1]
 [ext_resource path="res://ui/menus/global/my_menu_button.gd" type="Script" id=2]
 [ext_resource path="res://resources/themes/base_theme.tres" type="Theme" id=3]
+[ext_resource path="res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapons_settings_menu_theme.tres" type="Theme" id=4]
 
 [node name="MenuWeaponSettings" type="MarginContainer"]
 anchor_right = 1.0
@@ -155,20 +156,33 @@ margin_right = 1009.0
 margin_bottom = 77.0
 alignment = 2
 
-[node name="Labels" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper"]
-unique_name_in_owner = true
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper"]
 margin_left = 1001.0
-margin_right = 1001.0
-
-[node name="Inputs" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper"]
-unique_name_in_owner = true
-margin_left = 1005.0
-margin_right = 1005.0
-
-[node name="Defaults" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper"]
-unique_name_in_owner = true
-margin_left = 1009.0
 margin_right = 1009.0
+
+[node name="TierInfo" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+margin_right = 297.0
+margin_bottom = 21.0
+theme = ExtResource( 4 )
+text = "WEAPON_SETTINGS_TIER_INFO"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer"]
+margin_right = 8.0
+
+[node name="Labels" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+
+[node name="Inputs" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 4.0
+margin_right = 4.0
+
+[node name="Defaults" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 8.0
+margin_right = 8.0
 
 [node name="Spacer3" type="Control" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner"]
 margin_top = 81.0
@@ -177,23 +191,38 @@ margin_bottom = 91.0
 rect_min_size = Vector2( 0, 10 )
 
 [node name="SettingsControls" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner"]
-margin_top = 95.0
-margin_right = 1009.0
-margin_bottom = 95.0
-alignment = 2
-
-[node name="ResetButton" type="Button" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/SettingsControls"]
 unique_name_in_owner = true
 visible = false
-margin_left = 445.0
-margin_right = 995.0
+margin_top = 95.0
+margin_right = 1132.0
+margin_bottom = 160.0
+alignment = 2
+
+[node name="ResetWeapon" type="Button" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/SettingsControls"]
+unique_name_in_owner = true
+margin_right = 550.0
 margin_bottom = 65.0
 size_flags_horizontal = 4
-text = "WEAPON_SETTINGS_RESET"
+text = "WEAPON_SETTINGS_RESET_WEAPON"
 
-[node name="Spacer3" type="Control" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/SettingsControls"]
-margin_left = 999.0
-margin_right = 1009.0
+[node name="Spacer" type="Control" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/SettingsControls"]
+margin_left = 554.0
+margin_right = 564.0
+margin_bottom = 65.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="ResetTier" type="Button" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/SettingsControls"]
+unique_name_in_owner = true
+margin_left = 568.0
+margin_right = 1118.0
+margin_bottom = 65.0
+size_flags_horizontal = 4
+text = "WEAPON_SETTINGS_RESET_TIER"
+
+[node name="Spacer2" type="Control" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/SettingsControls"]
+margin_left = 1122.0
+margin_right = 1132.0
+margin_bottom = 65.0
 rect_min_size = Vector2( 10, 0 )
 
 [node name="BackButton" type="Button" parent="VBoxContainer"]
