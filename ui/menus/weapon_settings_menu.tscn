@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://mods-unpacked/MincedMeatMole-WeaponSettings/extensions/ui/menus/pages/menu_weapon_settings_options.gd" type="Script" id=1]
 [ext_resource path="res://ui/menus/global/my_menu_button.gd" type="Script" id=2]
 [ext_resource path="res://resources/themes/base_theme.tres" type="Theme" id=3]
 [ext_resource path="res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapons_settings_menu_theme.tres" type="Theme" id=4]
+[ext_resource path="res://items/stats/max_hp.png" type="Texture" id=5]
+[ext_resource path="res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapon_settings_dot.png" type="Texture" id=6]
 
 [node name="MenuWeaponSettings" type="MarginContainer"]
 anchor_right = 1.0
@@ -25,7 +27,6 @@ text = "WEAPON_SETTINGS_HEADLINE"
 align = 1
 
 [node name="AllButtons" type="HBoxContainer" parent="VBoxContainer"]
-unique_name_in_owner = true
 margin_top = 102.0
 margin_right = 1986.0
 margin_bottom = 957.0
@@ -150,44 +151,468 @@ margin_bottom = 73.0
 rect_min_size = Vector2( 0, 10 )
 
 [node name="WeaponFormWrapper" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner"]
-unique_name_in_owner = true
 margin_top = 77.0
 margin_right = 1009.0
-margin_bottom = 77.0
+margin_bottom = 635.0
 alignment = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper"]
-margin_left = 1001.0
+margin_left = 231.0
 margin_right = 1009.0
+margin_bottom = 558.0
 
 [node name="TierInfo" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer"]
 unique_name_in_owner = true
-visible = false
-margin_right = 297.0
+margin_right = 778.0
 margin_bottom = 21.0
 theme = ExtResource( 4 )
 text = "WEAPON_SETTINGS_TIER_INFO"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer"]
-margin_right = 8.0
+margin_top = 25.0
+margin_right = 778.0
+margin_bottom = 558.0
 
-[node name="Labels" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer"]
+margin_right = 778.0
+margin_bottom = 533.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer"]
+margin_right = 778.0
+
+[node name="Labels" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 
-[node name="Inputs" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer"]
+[node name="Inputs" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 margin_left = 4.0
 margin_right = 4.0
 
-[node name="Defaults" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer"]
+[node name="Defaults" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 margin_left = 8.0
 margin_right = 8.0
 
+[node name="ScalingButton" type="Button" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+margin_top = 4.0
+margin_right = 778.0
+margin_bottom = 69.0
+text = "WEAPON_SETTINGS_SCALING_BUTTON"
+
+[node name="ScalingContainer" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+margin_top = 73.0
+margin_right = 778.0
+margin_bottom = 533.0
+alignment = 2
+
+[node name="ScalingLabels" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer"]
+unique_name_in_owner = true
+margin_left = 301.0
+margin_right = 585.0
+margin_bottom = 460.0
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_right = 284.0
+margin_bottom = 54.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer"]
+margin_right = 24.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_top = 58.0
+margin_right = 284.0
+margin_bottom = 112.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer2"]
+margin_right = 24.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer2"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer2/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_top = 116.0
+margin_right = 284.0
+margin_bottom = 170.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer3"]
+margin_right = 24.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer3"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer3/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_top = 174.0
+margin_right = 284.0
+margin_bottom = 228.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer4"]
+margin_right = 24.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer4"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer4/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_top = 232.0
+margin_right = 284.0
+margin_bottom = 286.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer5"]
+margin_right = 24.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer5"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer5/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_top = 290.0
+margin_right = 284.0
+margin_bottom = 344.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer6"]
+margin_right = 24.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer6"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer6/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="HBoxContainer7" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_top = 348.0
+margin_right = 284.0
+margin_bottom = 402.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer7"]
+margin_right = 24.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer7"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer7/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="HBoxContainer8" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels"]
+margin_top = 406.0
+margin_right = 284.0
+margin_bottom = 460.0
+alignment = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer8"]
+margin_right = 24.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 24, 24 )
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer8"]
+margin_left = 28.0
+margin_right = 284.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "adfdsfgdsg  "
+align = 2
+valign = 1
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingLabels/HBoxContainer8/Label"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -20.0
+margin_top = -2.0
+margin_right = -10.0
+margin_bottom = 8.0
+texture = ExtResource( 6 )
+
+[node name="ScalingInputs" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer"]
+unique_name_in_owner = true
+margin_left = 589.0
+margin_right = 707.0
+margin_bottom = 460.0
+alignment = 1
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_right = 118.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="SpinBox2" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_top = 58.0
+margin_right = 118.0
+margin_bottom = 112.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="SpinBox3" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_top = 116.0
+margin_right = 118.0
+margin_bottom = 170.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="SpinBox4" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_top = 174.0
+margin_right = 118.0
+margin_bottom = 228.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="SpinBox5" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_top = 232.0
+margin_right = 118.0
+margin_bottom = 286.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="SpinBox6" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_top = 290.0
+margin_right = 118.0
+margin_bottom = 344.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="SpinBox7" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_top = 348.0
+margin_right = 118.0
+margin_bottom = 402.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="SpinBox8" type="SpinBox" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingInputs"]
+margin_top = 406.0
+margin_right = 118.0
+margin_bottom = 460.0
+rect_min_size = Vector2( 0, 54 )
+max_value = 1e+06
+value = 500.0
+
+[node name="ScalingDefaults" type="VBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer"]
+unique_name_in_owner = true
+margin_left = 711.0
+margin_right = 778.0
+margin_bottom = 460.0
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_right = 67.0
+margin_bottom = 54.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
+[node name="Label2" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_top = 58.0
+margin_right = 67.0
+margin_bottom = 112.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
+[node name="Label3" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_top = 116.0
+margin_right = 67.0
+margin_bottom = 170.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
+[node name="Label4" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_top = 174.0
+margin_right = 67.0
+margin_bottom = 228.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
+[node name="Label5" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_top = 232.0
+margin_right = 67.0
+margin_bottom = 286.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
+[node name="Label6" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_top = 290.0
+margin_right = 67.0
+margin_bottom = 344.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
+[node name="Label7" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_top = 348.0
+margin_right = 67.0
+margin_bottom = 402.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
+[node name="Label8" type="Label" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner/WeaponFormWrapper/VBoxContainer/HBoxContainer/VBoxContainer/ScalingContainer/ScalingDefaults"]
+margin_top = 406.0
+margin_right = 67.0
+margin_bottom = 460.0
+rect_min_size = Vector2( 0, 54 )
+text = "300"
+valign = 1
+
 [node name="Spacer3" type="Control" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner"]
-margin_top = 81.0
+margin_top = 639.0
 margin_right = 1009.0
-margin_bottom = 91.0
+margin_bottom = 649.0
 rect_min_size = Vector2( 0, 10 )
 
 [node name="SettingsControls" type="HBoxContainer" parent="VBoxContainer/AllButtons/WeaponFormHolder/ScrollContainer/PanelContainer/WeaponFormHolderInner"]
@@ -254,5 +679,8 @@ expand = true
 unique_name_in_owner = true
 margin_right = 20.0
 margin_bottom = 40.0
+
+[node name="MiniSpacerV" type="Control" parent="StencilHolder"]
+unique_name_in_owner = true
 
 [connection signal="pressed" from="VBoxContainer/BackButton" to="VBoxContainer" method="_on_BackButton_pressed"]

@@ -9,14 +9,17 @@ signal back_button_pressed
 
 onready var back_button = $"%BackButton"
 onready var weapons_form = $"%WeaponFormHolderInner"
-onready var weapons_form_holder = $"%WeaponFormWrapper"
-onready var all_buttons = $"%AllButtons"
 onready var settings_controls = $"%SettingsControls"
 onready var reset_tier_button = $"%ResetTier"
 onready var reset_weapon_button = $"%ResetWeapon"
 onready var labels = $"%Labels"
 onready var inputs = $"%Inputs"
 onready var defaults = $"%Defaults"
+onready var scaling_button = $"%ScalingButton"
+onready var scaling_container = $"%ScalingContainer"
+onready var scaling_labels = $"%ScalingLabels"
+onready var scaling_inputs = $"%ScalingInputs"
+onready var scaling_defaults = $"%ScalingDefaults"
 
 onready var melee_weapons_buttons = $"%MeleeWeaponsButtons"
 onready var ranged_weapons_buttons = $"%RangedWeaponsButtons"
@@ -25,6 +28,7 @@ onready var weapon_name_container = $"%Name"
 onready var tier_slot_holder = $"%TierSlotHolder"
 onready var tier_button = $"%TierButton"
 onready var mini_spacer = $"%MiniSpacer"
+onready var mini_spacer_v = $"%MiniSpacerV"
 onready var tier_info = $"%TierInfo"
 
 var allPanels = []
@@ -38,6 +42,7 @@ var value_labels = {}
 var current_weapon
 var current_tier
 var current_type
+var scaling_shown = false
 
 var common_int_data = [
 	"value"
@@ -213,6 +218,25 @@ var infos = {
 		"label": "WEAPON_SETTINGS_ALTERNATE_ATTACK_TYPE"
 	}
 }
+var scaling_stats_holder = [
+	"stat_max_hp",
+	"stat_hp_regeneration",
+	"stat_lifesteal",
+	"stat_percent_damage",
+	"stat_melee_damage",
+	"stat_ranged_damage",
+	"stat_elemental_damage",
+	"stat_attack_speed",
+	"stat_crit_chance",
+	"stat_engineering",
+	"stat_range",
+	"stat_armor",
+	"stat_dodge",
+	"stat_speed",
+	"stat_luck",
+	"stat_harvesting",
+	"stat_levels"
+]
 
 func _ready():
 	pass
@@ -220,6 +244,8 @@ func _ready():
 func init():
 	back_button.grab_focus()
 	back_button.connect("pressed", self, "_on_BackButton_pressed")
+
+	scaling_button.connect("pressed", self, "_on_scaling_button_pressed")
 
 	_weapon_settings_load_data()
 	_weapon_settings_load_defaults()
@@ -252,6 +278,7 @@ func reset_tier(tier):
 	for default_value_key in weapon_settings_defaults[current_weapon.internal_name].tiers[tier]:
 		var default_value = weapon_settings_defaults[current_weapon.internal_name].tiers[tier][default_value_key]
 		if default_value_key == "scaling_stats":
+
 			continue
 		if default_value_key == "alternate_attack_type":
 			_save_single_value(default_value, current_weapon, tier, default_value_key)
@@ -426,6 +453,67 @@ func buildInputRow(input,label,tier,stat,weapon, size):
 
 	allInputs[stat] = input
 
+func create_new_scaling_input_row(label,stat_name,value,default):
+	var box = HBoxContainer.new()
+	box.alignment = BoxContainer.ALIGN_END
+	box.rect_min_size.y = 54
+
+	var labelItem = Label.new()
+	labelItem.text = tr(label) + "  "
+	labelItem.rect_min_size.y = 54
+	labelItem.valign = 1
+	labelItem.align = 2
+
+	var dot = TextureRect.new()
+	dot.texture = load("res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapon_settings_dot.png")
+	dot.anchor_left = 1
+	dot.anchor_right = 1
+	dot.margin_left = -20
+	dot.margin_top = -2
+	dot.margin_right = -10
+	dot.margin_bottom = 8
+#	dot.visible = _is_value_modified(weapon.internal_name, tier, stat)
+	dot.visible = true
+	value_labels[stat_name] = dot
+	labelItem.add_child(dot)
+
+	var statIcon = TextureRect.new()
+	statIcon.texture = load("res://items/stats/" + stat_name.replace("stat_","") + ".png")
+	statIcon.expand = true
+	statIcon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	statIcon.rect_min_size.x = 24
+	statIcon.rect_min_size.y = 54
+	print("res://items/stats/" + stat_name.replace("stat_","") + ".png")
+
+	var spinboxItem = SpinBox.new()
+	spinboxItem.min_value = 0
+	spinboxItem.max_value = 1000000
+	spinboxItem.step = 1
+	spinboxItem.rect_min_size.y = 54
+	spinboxItem.value = value * 100
+#	spinboxItem.connect("value_changed", self, "_save_single_value", [weapon, tier, stat]);
+	spinboxItem.connect("value_changed", self, "_save_single_scaling_value");
+
+	var defaultLabelItem = Label.new()
+	defaultLabelItem.text = str(default * 100) + "%  "
+	defaultLabelItem.rect_min_size.y = 54
+	defaultLabelItem.valign = Label.VALIGN_CENTER
+
+	box.add_child(statIcon)
+	box.add_child(mini_spacer.duplicate())
+	box.add_child(labelItem)
+	scaling_labels.add_child(box)
+	if (stat_name != "stat_levels"):
+		scaling_labels.add_child(mini_spacer_v.duplicate())
+
+	scaling_inputs.add_child(mini_spacer.duplicate())
+	scaling_inputs.add_child(spinboxItem)
+
+	scaling_defaults.add_child(mini_spacer.duplicate())
+	scaling_defaults.add_child(defaultLabelItem)
+
+
+
 func _on_weapon_button_pressed(panel:PanelContainer, weapon, type):
 	for single_panel in allPanels:
 		single_panel.set_theme(basetheme)
@@ -450,7 +538,7 @@ func _on_weapon_button_pressed(panel:PanelContainer, weapon, type):
 	current_weapon = weapon
 	current_type = type
 
-func _on_tier_button_pressed(panel, tier, weapon,type):
+func _on_tier_button_pressed(panel, tier, weapon, type):
 	allInputs = {}
 
 	for single_panel in allTierPanles:
@@ -466,6 +554,9 @@ func _on_tier_button_pressed(panel, tier, weapon,type):
 	delete_children(labels)
 	delete_children(inputs)
 	delete_children(defaults)
+	delete_children(scaling_labels)
+	delete_children(scaling_inputs)
+	delete_children(scaling_defaults)
 
 	if int(tier) == 0:
 		infos.value.min = -100000
@@ -537,7 +628,30 @@ func _on_tier_button_pressed(panel, tier, weapon,type):
 				infos[entry].default = weapon_settings_save_data[weapon.internal_name].tiers[tier][entry]
 			create_new_bool_input(infos[entry].default, weapon, tier, infos[entry].label, entry)
 
+	var parsedStats = {}
+	var parsedDefaultStats = {}
+	for stat in stats.scaling_stats:
+		parsedStats[stat[0]] = stat[1]
+	for stat in weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats:
+		parsedDefaultStats[stat[0]] = stat[1]
+	for scaling_stat_name in scaling_stats_holder:
+		var val = 0
+		var default = 0
+		if scaling_stat_name in parsedStats:
+			val = parsedStats[scaling_stat_name]
+		if scaling_stat_name in parsedDefaultStats:
+			default = parsedDefaultStats[scaling_stat_name]
+		create_new_scaling_input_row("WEAPON_SETTINGS_" + scaling_stat_name.to_upper(), scaling_stat_name, val, default)
+
 	current_tier = tier
+
+func _on_scaling_button_pressed():
+	scaling_shown = not scaling_shown
+	if (scaling_shown):
+		scaling_container.visible = true
+	else:
+		scaling_container.visible = false
+
 
 func _save_single_value(value, weapon, tier, stat):
 	if stat == "lifesteal" or stat == "crit_chance" or stat == "accuracy":

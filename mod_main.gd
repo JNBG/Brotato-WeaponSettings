@@ -89,7 +89,7 @@ func get_0_tier(type, first_stats):
 		"recoil_duration": 0,
 		"additional_cooldown_every_x_shots": 0,
 		"additional_cooldown_multiplier": 0,
-		"scaling_stats": 0
+		"scaling_stats": first_stats.scaling_stats
 	}
 	if type == "melee":
 		defaultsats["attack_type"] = first_stats.attack_type
