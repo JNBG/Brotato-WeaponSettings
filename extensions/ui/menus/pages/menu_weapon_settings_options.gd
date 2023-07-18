@@ -335,6 +335,12 @@ func _reset_scaling_tier(default_value, cur_weapon, tier):
 		if int(current_tier) == 0:
 			for spinbox in scalingInputs:
 				scalingInputs[spinbox].value = 0
+			for tier in cur_weapon.tiers:
+#				if int(tier) == 0:
+#					continue
+				var file = load(cur_weapon.tiers[tier].stats)
+				file.scaling_stats = remove_zero_entries_from_scaling(default_value)
+				weapon_settings_save_data[cur_weapon.internal_name].tiers[tier].scaling_stats = default_value
 
 
 	_weapon_settings_save_data()
@@ -562,6 +568,7 @@ func _on_weapon_button_pressed(panel:PanelContainer, weapon, type):
 
 	weapons_form.visible = true
 	settings_controls.visible = true
+	tier_slot_holder.visible = true
 	current_weapon = weapon
 	current_type = type
 
@@ -1001,6 +1008,7 @@ func _weapon_settings_load_defaults():
 func _on_BackButton_pressed():
 	weapons_form.visible = false
 	settings_controls.visible = false
+	tier_slot_holder.visible = false
 	emit_signal("back_button_pressed")
 
 func _weapon_settings_save_options():
