@@ -27,7 +27,7 @@ func _init(modLoader = ModLoader):
 
 func _ready()->void:
 	_weapon_settings_save_defaults()
-	_weapon_settings_load_data()
+	_weapon_settings_load_data()	
 
 	if (weapon_settings_save_data != null):
 		for weapon in weapon_settings_save_data:
@@ -39,10 +39,20 @@ func _ready()->void:
 							weaponSettings = load(weapon_list[weapon].tiers[tier].data)
 						else:
 							weaponSettings = load(weapon_list[weapon].tiers[tier].stats)
-						weaponSettings[entry] = weapon_settings_save_data[weapon].tiers[tier][entry]
+						var valueToSave = weapon_settings_save_data[weapon].tiers[tier][entry]
+						if entry == "scaling_stats":
+							valueToSave = remove_zero_entries_from_scaling(valueToSave)
+						weaponSettings[entry] = valueToSave
 							
 
 	ModLoaderLog.info("Ready", WEAPON_SETTINGS_LOG)
+
+func remove_zero_entries_from_scaling(stats):
+	var parsedStats = []
+	for stat in stats:
+		if (stat[1] != 0):
+			parsedStats.append(stat)	
+	return parsedStats
 
 func get_weapon_list():
 	var weapons_by_name = {}
@@ -89,7 +99,25 @@ func get_0_tier(type, first_stats):
 		"recoil_duration": 0,
 		"additional_cooldown_every_x_shots": 0,
 		"additional_cooldown_multiplier": 0,
-		"scaling_stats": first_stats.scaling_stats
+		"scaling_stats": [
+			["stat_max_hp", 0],
+			["stat_hp_regeneration", 0],
+			["stat_lifesteal", 0],
+			["stat_percent_damage", 0],
+			["stat_melee_damage", 0],
+			["stat_ranged_damage", 0],
+			["stat_elemental_damage", 0],
+			["stat_attack_speed", 0],
+			["stat_crit_chance", 0],
+			["stat_engineering", 0],
+			["stat_range", 0],
+			["stat_armor", 0],
+			["stat_dodge", 0],
+			["stat_speed", 0],
+			["stat_luck", 0],
+			["stat_harvesting", 0],
+			["stat_levels", 0]
+		]
 	}
 	if type == "melee":
 		defaultsats["attack_type"] = first_stats.attack_type
@@ -122,6 +150,31 @@ func get_stat_n_data_files_in_dir(path, type, tier, weapon_name):
 			weapon_list[weapon_name].tiers[tier]["data"] = path + "/" + file_name
 		file_name = diry.get_next()
 	diry.list_dir_end()
+	
+	var zeroScalingStats = {
+		"stat_max_hp": 0,
+		"stat_hp_regeneration": 0,
+		"stat_lifesteal": 0,
+		"stat_percent_damage": 0,
+		"stat_melee_damage": 0,
+		"stat_ranged_damage": 0,
+		"stat_elemental_damage": 0,
+		"stat_attack_speed": 0,
+		"stat_crit_chance": 0,
+		"stat_engineering": 0,
+		"stat_range": 0,
+		"stat_armor": 0,
+		"stat_dodge": 0,
+		"stat_speed": 0,
+		"stat_luck": 0,
+		"stat_harvesting": 0,
+		"stat_levels": 0
+	}
+	var statsToSave = [];
+	for stat in statfile.scaling_stats:
+		zeroScalingStats[stat[0]] = stat[1]
+	for stat in zeroScalingStats:
+		statsToSave.append([stat, zeroScalingStats[stat]])
 
 	var defaultsats = {
 		"value": datafile.value,
@@ -137,7 +190,7 @@ func get_stat_n_data_files_in_dir(path, type, tier, weapon_name):
 		"recoil_duration": statfile.recoil_duration,
 		"additional_cooldown_every_x_shots": statfile.additional_cooldown_every_x_shots,
 		"additional_cooldown_multiplier": statfile.additional_cooldown_multiplier,
-		"scaling_stats": statfile.scaling_stats
+		"scaling_stats": statsToSave
 	}
 
 	if type == "melee":

@@ -2,8 +2,10 @@ extends Control
 
 const WEAPON_SETTINGS_SAVE_FILE = "user://weapon_settings_save_file.save"
 const WEAPON_SETTINGS_DEFAULTS_SAVE_FILE = "user://weapon_settings_defaults_save_file.save"
+const WEAPON_SETTINGS_OPTIONS_SAVE_FILE = "user://weapon_settings_options_save_file.save"
 var weapon_settings_save_data  = {}
 var weapon_settings_defaults  = {}
+var weapon_settings_options  = {}
 
 signal back_button_pressed
 
@@ -34,6 +36,7 @@ onready var tier_info = $"%TierInfo"
 var allPanels = []
 var allTierPanles = []
 var allInputs = {}
+var scalingInputs = {}
 var basetheme = load("res://resources/themes/base_theme.tres")
 var weapons_theme = load("res://mods-unpacked/MincedMeatMole-WeaponSettings/ui/menus/weapons_settings_menu_theme.tres")
 var weapon_buttons = {}
@@ -249,6 +252,12 @@ func init():
 
 	_weapon_settings_load_data()
 	_weapon_settings_load_defaults()
+	_weapon_settings_load_options()
+
+	if (weapon_settings_options.show_scaling):
+		scaling_container.visible = true
+	else:
+		scaling_container.visible = false
 
 	var melee_weapons = get_weapon_list("melee")
 	var ranged_weapons = get_weapon_list("ranged")
@@ -273,12 +282,11 @@ func _on_reset_tier_button_pressed():
 	else:
 		_on_reset_weapon_button_pressed()
 
-
 func reset_tier(tier):
 	for default_value_key in weapon_settings_defaults[current_weapon.internal_name].tiers[tier]:
 		var default_value = weapon_settings_defaults[current_weapon.internal_name].tiers[tier][default_value_key]
 		if default_value_key == "scaling_stats":
-
+			_reset_scaling_tier(default_value, current_weapon, tier)
 			continue
 		if default_value_key == "alternate_attack_type":
 			_save_single_value(default_value, current_weapon, tier, default_value_key)
@@ -313,6 +321,23 @@ func reset_inputs():
 
 		allInputs[default_value_key].value = default_value
 
+func _reset_scaling_tier(default_value, cur_weapon, tier):
+	if int(tier) != 0 and int(current_tier) != 0:
+		var file = load(cur_weapon.tiers[tier].stats)
+		file.scaling_stats = remove_zero_entries_from_scaling(default_value)
+		weapon_settings_save_data[cur_weapon.internal_name].tiers[tier].scaling_stats = default_value
+		var parsedDefaults = {}
+		for stat in default_value:
+			parsedDefaults[stat[0]] = stat[1] * 100
+		for spinbox in scalingInputs:
+			scalingInputs[spinbox].value = parsedDefaults[spinbox]
+	else:
+		if int(current_tier) == 0:
+			for spinbox in scalingInputs:
+				scalingInputs[spinbox].value = 0
+
+
+	_weapon_settings_save_data()
 
 func _on_reset_weapon_button_pressed():
 	reset_inputs()
@@ -453,7 +478,7 @@ func buildInputRow(input,label,tier,stat,weapon, size):
 
 	allInputs[stat] = input
 
-func create_new_scaling_input_row(label,stat_name,value,default):
+func create_new_scaling_input_row(label, stat_name, value, default, weapon, tier):
 	var box = HBoxContainer.new()
 	box.alignment = BoxContainer.ALIGN_END
 	box.rect_min_size.y = 54
@@ -472,32 +497,35 @@ func create_new_scaling_input_row(label,stat_name,value,default):
 	dot.margin_top = -2
 	dot.margin_right = -10
 	dot.margin_bottom = 8
-#	dot.visible = _is_value_modified(weapon.internal_name, tier, stat)
-	dot.visible = true
+	dot.visible = value != default
 	value_labels[stat_name] = dot
 	labelItem.add_child(dot)
 
 	var statIcon = TextureRect.new()
-	statIcon.texture = load("res://items/stats/" + stat_name.replace("stat_","") + ".png")
+	if stat_name == "stat_levels":
+		statIcon.texture = load("res://items/upgrades/upgrade_icon.png")
+	else:
+		statIcon.texture = load("res://items/stats/" + stat_name.replace("stat_","") + ".png")
 	statIcon.expand = true
 	statIcon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	statIcon.rect_min_size.x = 24
 	statIcon.rect_min_size.y = 54
-	print("res://items/stats/" + stat_name.replace("stat_","") + ".png")
 
 	var spinboxItem = SpinBox.new()
-	spinboxItem.min_value = 0
+	spinboxItem.min_value = -1000000
 	spinboxItem.max_value = 1000000
 	spinboxItem.step = 1
 	spinboxItem.rect_min_size.y = 54
 	spinboxItem.value = value * 100
-#	spinboxItem.connect("value_changed", self, "_save_single_value", [weapon, tier, stat]);
-	spinboxItem.connect("value_changed", self, "_save_single_scaling_value");
+	spinboxItem.connect("value_changed", self, "_save_single_scaling_value", [weapon, tier, stat_name]);
+	scalingInputs[stat_name] = spinboxItem
 
-	var defaultLabelItem = Label.new()
-	defaultLabelItem.text = str(default * 100) + "%  "
-	defaultLabelItem.rect_min_size.y = 54
-	defaultLabelItem.valign = Label.VALIGN_CENTER
+	var defaultLabelItem
+	if int(tier) != 0:
+		defaultLabelItem = Label.new()
+		defaultLabelItem.text = str(default * 100) + "%  "
+		defaultLabelItem.rect_min_size.y = 54
+		defaultLabelItem.valign = Label.VALIGN_CENTER
 
 	box.add_child(statIcon)
 	box.add_child(mini_spacer.duplicate())
@@ -509,10 +537,9 @@ func create_new_scaling_input_row(label,stat_name,value,default):
 	scaling_inputs.add_child(mini_spacer.duplicate())
 	scaling_inputs.add_child(spinboxItem)
 
-	scaling_defaults.add_child(mini_spacer.duplicate())
-	scaling_defaults.add_child(defaultLabelItem)
-
-
+	if int(tier) != 0:
+		scaling_defaults.add_child(mini_spacer.duplicate())
+		scaling_defaults.add_child(defaultLabelItem)
 
 func _on_weapon_button_pressed(panel:PanelContainer, weapon, type):
 	for single_panel in allPanels:
@@ -540,6 +567,7 @@ func _on_weapon_button_pressed(panel:PanelContainer, weapon, type):
 
 func _on_tier_button_pressed(panel, tier, weapon, type):
 	allInputs = {}
+	scalingInputs = {}
 
 	for single_panel in allTierPanles:
 		single_panel.set_theme(basetheme)
@@ -628,9 +656,19 @@ func _on_tier_button_pressed(panel, tier, weapon, type):
 				infos[entry].default = weapon_settings_save_data[weapon.internal_name].tiers[tier][entry]
 			create_new_bool_input(infos[entry].default, weapon, tier, infos[entry].label, entry)
 
+	var data = []
+	if int(tier) != 0:
+		data = load(weapon.tiers[tier].stats)
+		data = data.scaling_stats
+	else:
+		if weapon.internal_name in weapon_settings_save_data:
+			if tier in weapon_settings_save_data[weapon.internal_name].tiers:
+				data = weapon_settings_save_data[weapon.internal_name].tiers[tier].scaling_stats
+			else:
+				data = weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats
 	var parsedStats = {}
 	var parsedDefaultStats = {}
-	for stat in stats.scaling_stats:
+	for stat in data:
 		parsedStats[stat[0]] = stat[1]
 	for stat in weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats:
 		parsedDefaultStats[stat[0]] = stat[1]
@@ -641,17 +679,17 @@ func _on_tier_button_pressed(panel, tier, weapon, type):
 			val = parsedStats[scaling_stat_name]
 		if scaling_stat_name in parsedDefaultStats:
 			default = parsedDefaultStats[scaling_stat_name]
-		create_new_scaling_input_row("WEAPON_SETTINGS_" + scaling_stat_name.to_upper(), scaling_stat_name, val, default)
+		create_new_scaling_input_row("WEAPON_SETTINGS_" + scaling_stat_name.to_upper(), scaling_stat_name, val, default, weapon, tier)
 
 	current_tier = tier
 
 func _on_scaling_button_pressed():
-	scaling_shown = not scaling_shown
-	if (scaling_shown):
+	weapon_settings_options.show_scaling = not weapon_settings_options.show_scaling
+	if (weapon_settings_options.show_scaling):
 		scaling_container.visible = true
 	else:
 		scaling_container.visible = false
-
+	_weapon_settings_save_options()
 
 func _save_single_value(value, weapon, tier, stat):
 	if stat == "lifesteal" or stat == "crit_chance" or stat == "accuracy":
@@ -727,13 +765,122 @@ func _save_single_value(value, weapon, tier, stat):
 
 	_weapon_settings_save_data()
 
+func _save_single_scaling_value(value, weapon, tier, stat_name):
+	value = value / 100
+
+	if int(tier) != 0:
+		var statFile = load(weapon.tiers[tier].stats)
+
+		var defaultStats = {}
+		for stat in weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats:
+			defaultStats[stat[0]] = stat[1]
+
+		var saveStatDict = {}
+		for stat in weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats:
+			saveStatDict[stat[0]] = stat[1]
+		for stat in statFile.scaling_stats:
+			saveStatDict[stat[0]] = stat[1]
+
+		saveStatDict[stat_name] = value
+
+		var statsToSave = [];
+		var nonZeroStatsToSave = [];
+		for stat in saveStatDict:
+			statsToSave.append([stat, saveStatDict[stat]])
+			if (saveStatDict[stat] != 0):
+				nonZeroStatsToSave.append([stat, saveStatDict[stat]])
+		statFile.scaling_stats = nonZeroStatsToSave
+
+		if !weapon.internal_name in weapon_settings_save_data:
+			weapon_settings_save_data[weapon.internal_name] = {}
+			weapon_settings_save_data[weapon.internal_name]["tiers"] = {}
+		if !tier in weapon_settings_save_data[weapon.internal_name]["tiers"]:
+			weapon_settings_save_data[weapon.internal_name]["tiers"][tier] = {}
+		weapon_settings_save_data[weapon.internal_name]["tiers"][tier]["scaling_stats"] = statsToSave
+	else:
+		for tier in weapon.tiers:
+			var statFile = load(weapon.tiers[tier].stats)
+			var parsedStats = {}
+			var defaultStats = {}
+			for stat in statFile.scaling_stats:
+				parsedStats[stat[0]] = stat[1]
+			for stat in weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats:
+				defaultStats[stat[0]] = stat[1]
+			if !stat_name in defaultStats:
+				defaultStats[stat_name] = 0
+			parsedStats[stat_name] = defaultStats[stat_name] + value
+			var statsToSave = [];
+			for stat in parsedStats:
+				if (parsedStats[stat] != 0):
+					statsToSave.append([stat, parsedStats[stat]])
+			statFile.scaling_stats = statsToSave
+
+		if !weapon.internal_name in weapon_settings_save_data:
+			weapon_settings_save_data[weapon.internal_name] = {}
+			weapon_settings_save_data[weapon.internal_name]['tiers'] = {}
+
+		var keys = weapon.tiers.keys()
+		if !0 in keys:
+			keys.append(0)
+		for tier in keys:
+			if !tier in weapon_settings_save_data[weapon.internal_name]['tiers']:
+				weapon_settings_save_data[weapon.internal_name]['tiers'][tier] = {}
+			if !"scaling_stats" in weapon_settings_save_data[weapon.internal_name]['tiers'][tier]:
+				weapon_settings_save_data[weapon.internal_name]['tiers'][tier]["scaling_stats"] = {}
+
+			var defaultStats = {}
+			for stat in weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats:
+				defaultStats[stat[0]] = stat[1]
+
+			var saveStatDict = {}
+			for stat in weapon_settings_defaults[weapon.internal_name].tiers[tier].scaling_stats:
+				saveStatDict[stat[0]] = stat[1]
+
+			for stat in weapon_settings_save_data[weapon.internal_name]['tiers'][tier].scaling_stats:
+				saveStatDict[stat[0]] = stat[1]
+
+			saveStatDict[stat_name] = defaultStats[stat_name] + value
+
+			var statsToSave = [];
+			for stat in saveStatDict:
+				statsToSave.append([stat, saveStatDict[stat]])
+
+			weapon_settings_save_data[weapon.internal_name].tiers[tier].scaling_stats = statsToSave
+
+			if _is_tier_modified(weapon.internal_name, tier):
+				tier_buttons[tier].visible = true
+			else:
+				tier_buttons[tier].visible = false
+
+	if _is_weapon_modified(weapon.internal_name):
+		weapon_buttons[weapon.internal_name].visible = true
+	else:
+		weapon_buttons[weapon.internal_name].visible = false
+
+	if _is_tier_modified(weapon.internal_name, tier):
+		tier_buttons[tier].visible = true
+	else:
+		tier_buttons[tier].visible = false
+
+	if _is_value_modified(weapon.internal_name, tier, stat_name):
+		value_labels[stat_name].visible = true
+	else:
+		value_labels[stat_name].visible = false
+
+	_weapon_settings_save_data()
+
 func _is_weapon_modified(weapon):
 	if weapon in weapon_settings_save_data:
 		for tier in weapon_settings_save_data[weapon].tiers:
 			for value_to_check in weapon_settings_defaults[weapon].tiers[tier]:
 				if value_to_check in weapon_settings_save_data[weapon].tiers[tier]:
-					if weapon_settings_save_data[weapon].tiers[tier][value_to_check] != weapon_settings_defaults[weapon].tiers[tier][value_to_check]:
-						return true
+					if value_to_check == "scaling_stats":
+						for stat in scaling_stats_holder:
+							if _find_scaling_value_by_statname(weapon_settings_save_data[weapon].tiers[tier].scaling_stats, stat) != _find_scaling_value_by_statname(weapon_settings_defaults[weapon].tiers[tier].scaling_stats, stat):
+								return true
+					else:
+						if weapon_settings_save_data[weapon].tiers[tier][value_to_check] != weapon_settings_defaults[weapon].tiers[tier][value_to_check]:
+							return true
 	return false
 
 func _is_tier_modified(weapon, tier):
@@ -741,19 +888,41 @@ func _is_tier_modified(weapon, tier):
 		if tier in weapon_settings_save_data[weapon].tiers:
 			for value_to_check in weapon_settings_defaults[weapon].tiers[tier]:
 				if value_to_check in weapon_settings_save_data[weapon].tiers[tier]:
-					if weapon_settings_save_data[weapon].tiers[tier][value_to_check] != weapon_settings_defaults[weapon].tiers[tier][value_to_check]:
-						return true
+					if value_to_check == "scaling_stats":
+						for stat in scaling_stats_holder:
+							if _find_scaling_value_by_statname(weapon_settings_save_data[weapon].tiers[tier].scaling_stats, stat) != _find_scaling_value_by_statname(weapon_settings_defaults[weapon].tiers[tier].scaling_stats, stat):
+								return true
+					else:
+						if weapon_settings_save_data[weapon].tiers[tier][value_to_check] != weapon_settings_defaults[weapon].tiers[tier][value_to_check]:
+							return true
 	return false
 
 func _is_value_modified(weapon, tier, stat):
 	if weapon in weapon_settings_save_data:
 		if tier in weapon_settings_save_data[weapon].tiers:
-			if stat in weapon_settings_save_data[weapon].tiers[tier]:
-				if weapon_settings_save_data[weapon].tiers[tier][stat] != weapon_settings_defaults[weapon].tiers[tier][stat]:
-					return true
+			if stat in scaling_stats_holder:
+				if "scaling_stats" in weapon_settings_save_data[weapon].tiers[tier]:
+					if _find_scaling_value_by_statname(weapon_settings_save_data[weapon].tiers[tier].scaling_stats, stat) != _find_scaling_value_by_statname(weapon_settings_defaults[weapon].tiers[tier].scaling_stats, stat):
+						return true
+			else:
+				if stat in weapon_settings_save_data[weapon].tiers[tier]:
+					if weapon_settings_save_data[weapon].tiers[tier][stat] != weapon_settings_defaults[weapon].tiers[tier][stat]:
+						return true
 	return false
 
 ### Just File Handlers and Preppers ###
+func remove_zero_entries_from_scaling(stats):
+	var parsedStats = []
+	for stat in stats:
+		if (stat[1] != 0):
+			parsedStats.append(stat)
+	return parsedStats
+
+func _find_scaling_value_by_statname(stats, statname):
+	for stat in stats:
+		if stat[0] == statname:
+			return stat[1]
+
 func get_weapon_list(type):
 	var weapons = get_list_of_directories("res://weapons/" + type)
 	var weapons_by_name = {}
@@ -833,3 +1002,20 @@ func _on_BackButton_pressed():
 	weapons_form.visible = false
 	settings_controls.visible = false
 	emit_signal("back_button_pressed")
+
+func _weapon_settings_save_options():
+	var file = File.new()
+	file.open(WEAPON_SETTINGS_OPTIONS_SAVE_FILE, File.WRITE)
+	file.store_var(weapon_settings_options)
+	file.close()
+
+func _weapon_settings_load_options():
+	var file = File.new()
+	if not file.file_exists(WEAPON_SETTINGS_OPTIONS_SAVE_FILE):
+		weapon_settings_options = {
+			"show_scaling": false
+		}
+		_weapon_settings_save_options()
+	file.open(WEAPON_SETTINGS_OPTIONS_SAVE_FILE, File.READ)
+	weapon_settings_options = file.get_var()
+	file.close()
