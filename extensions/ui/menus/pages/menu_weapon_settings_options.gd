@@ -329,7 +329,7 @@ func _reset_scaling_tier(default_value, cur_weapon, tier):
 			scalingInputs[spinbox].value = parsedDefaults[spinbox]
 	if int(tier) != 0:
 		var file = load(cur_weapon.tiers[tier].stats)
-		file.scaling_stats = defaultTierLevels[tier].scaling_stats
+		file.scaling_stats = remove_zero_entries_from_scaling(defaultTierLevels[tier].scaling_stats)
 
 	_weapon_settings_save_data()
 
