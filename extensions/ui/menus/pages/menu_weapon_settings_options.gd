@@ -287,20 +287,17 @@ func reset_tier(tier):
 		var default_value = weapon_settings_defaults[current_weapon.internal_name].tiers[tier][default_value_key]
 		if default_value_key == "scaling_stats":
 			_reset_scaling_tier(default_value, current_weapon, tier)
-			continue
-		if default_value_key == "alternate_attack_type":
+		elif default_value_key == "alternate_attack_type":
 			_save_single_value(default_value, current_weapon, tier, default_value_key)
-			continue
-		if default_value_key == "attack_type":
+		elif default_value_key == "attack_type":
 			_save_single_value(default_value, current_weapon, tier, default_value_key)
-			continue
-		if default_value_key == "increase_projectile_speed_with_range":
+		elif default_value_key == "increase_projectile_speed_with_range":
 			_save_single_value(default_value, current_weapon, tier, default_value_key)
-			continue
-		if default_value_key == "crit_chance" or default_value_key == "lifesteal" or default_value_key == "accuracy":
+		elif default_value_key == "crit_chance" or default_value_key == "lifesteal" or default_value_key == "accuracy":
 			default_value = default_value * 100
-
-		_save_single_value(default_value, current_weapon, tier, default_value_key)
+			_save_single_value(default_value, current_weapon, tier, default_value_key)
+		else:
+			_save_single_value(default_value, current_weapon, tier, default_value_key)
 
 func reset_inputs():
 	for default_value_key in weapon_settings_defaults[current_weapon.internal_name].tiers[current_tier]:
@@ -322,26 +319,17 @@ func reset_inputs():
 		allInputs[default_value_key].value = default_value
 
 func _reset_scaling_tier(default_value, cur_weapon, tier):
-	if int(tier) != 0 and int(current_tier) != 0:
-		var file = load(cur_weapon.tiers[tier].stats)
-		file.scaling_stats = remove_zero_entries_from_scaling(default_value)
-		weapon_settings_save_data[cur_weapon.internal_name].tiers[tier].scaling_stats = default_value
+	var defaultTierLevels = weapon_settings_defaults[cur_weapon.internal_name].tiers
+	weapon_settings_save_data[cur_weapon.internal_name].tiers[tier].scaling_stats = defaultTierLevels[tier].scaling_stats
+	if int(tier) == int(current_tier):
 		var parsedDefaults = {}
 		for stat in default_value:
 			parsedDefaults[stat[0]] = stat[1] * 100
 		for spinbox in scalingInputs:
 			scalingInputs[spinbox].value = parsedDefaults[spinbox]
-	else:
-		if int(current_tier) == 0:
-			for spinbox in scalingInputs:
-				scalingInputs[spinbox].value = 0
-			for tier in cur_weapon.tiers:
-#				if int(tier) == 0:
-#					continue
-				var file = load(cur_weapon.tiers[tier].stats)
-				file.scaling_stats = remove_zero_entries_from_scaling(default_value)
-				weapon_settings_save_data[cur_weapon.internal_name].tiers[tier].scaling_stats = default_value
-
+	if int(tier) != 0:
+		var file = load(cur_weapon.tiers[tier].stats)
+		file.scaling_stats = defaultTierLevels[tier].scaling_stats
 
 	_weapon_settings_save_data()
 
@@ -704,7 +692,6 @@ func _save_single_value(value, weapon, tier, stat):
 
 	if stat == "attack_type":
 		value = int(value)
-
 	if int(tier) == 0:
 		for tier in weapon.tiers:
 			var fileToSave = weapon.tiers[tier].stats

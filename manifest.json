@@ -1,7 +1,7 @@
 {
 	"name": "WeaponSettings",
 	"namespace": "MincedMeatMole",
-	"version_number": "1.0.1",
+	"version_number": "1.0.2",
 	"description": "Adjust the difficulty of Weapons yourself",
 	"dependencies": [],
     "website_url": "",
