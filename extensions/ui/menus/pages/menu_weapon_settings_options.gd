@@ -690,7 +690,7 @@ func _save_single_value(value, weapon, tier, stat):
 	if stat == "lifesteal" or stat == "crit_chance" or stat == "accuracy":
 		value = value / 100
 
-	if stat == "attack_type":
+	if stat == "attack_type" or stat == "additional_cooldown_every_x_shots":
 		value = int(value)
 	if int(tier) == 0:
 		for tier in weapon.tiers:
